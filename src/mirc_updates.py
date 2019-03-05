@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 
-url = "http://spacejam.ovh/New_pwd=fibra.php#top"  # target URL
+url = "http://spacejam.ovh/New_pwd=fibra.php"  # target URL
 new_film = []  # TOP TEN res
 
 r = requests.get(url)
@@ -27,3 +27,5 @@ dump_list = extract_film(cont=0, row=0)  # Create top ten updated film inside ne
 
 # print(len(new_film))  # must be 10, it's a top ten
 print(new_film)
+
+
