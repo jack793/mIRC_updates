@@ -1,1 +1,1 @@
-web: python3 mirc_bot.py
+web: python3 src/mirc_bot.py
