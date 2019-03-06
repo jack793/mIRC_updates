@@ -11,21 +11,19 @@ data = r.text
 soup = BeautifulSoup(data, "html.parser")
 
 
-def extract_film(cont: int, row: int) -> list:
+def extract_film(cont: int, row: int, film: list) -> list:
     if row == 10:  # Base case: I have top ten Bluray 1080p film
-        print("parsing terminato..ritorno la lista ("+str(len(new_film))+" elementi presenti)")
-        return new_film
+        print("parsing terminated..returning the list ("+str(len(film))+" elements inside)")
+        return film
     else:
         for item in soup.find_all("a", class_="titolo ricerca pos" + str(row)):
             cont = cont + 1
             if cont == 4:
-                new_film.append(item.string)
-                extract_film(0, row + 1)  # Recursion: reset counter and increase row
+                film.append(item.string)
+                extract_film(0, row + 1, film)  # Recursion: reset counter and increase row
 
 
-dump_list = extract_film(cont=0, row=0)  # Create top ten updated film inside new_film list
-
-# print(len(new_film))  # must be 10, it's a top ten
-print(new_film)
+# dump_list = extract_film(cont=0, row=0)  # Create a dump on new_film list
+# print(new_film)
 
 

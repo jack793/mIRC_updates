@@ -5,7 +5,7 @@ import os
 #
 
 # Telegram bot API token
-API_TOKEN = "token here"
+API_TOKEN = "690164647:AAHdTmOHpYHkSy63ZaAa3ub1n0HjsFoNxKk"
 
 # Path where wil be stored the configurations
 SCHEDULER_CONFIG_PATH = os.path.dirname(__file__)
