@@ -1,5 +1,6 @@
 # -*- coding: UTF8 -*-
 import requests
+import src.configurations as config
 from src.mirc_updates import extract_film
 
 
@@ -46,8 +47,8 @@ class BotHandler:
         return '- ' + strDump
 
 
-token = 'API_TOKEN HERE!'  # Token of your bot
-mirc_bot = BotHandler(token)  # Your bot's name
+bot_token = config.API_TOKEN  # Token of your bot
+mirc_bot = BotHandler(bot_token)  # Your bot's name
 
 
 def main():
