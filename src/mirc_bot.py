@@ -87,7 +87,7 @@ class BotHandler:
         return '- ' + strDump
 
 
-bot_token = conf.API_TOKEN  # Token of your bot
+bot_token = API_TOKEN # Token of your bot
 mirc_bot = BotHandler(bot_token)  # Your bot's name
 
 
