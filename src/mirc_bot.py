@@ -127,13 +127,17 @@ def main():
                     mirc_bot.send_message(first_chat_id, 'Ok ' + first_chat_name +
                                           ' estraggo la TOP TEN aggiornata' + ', attendi qualche secondo...\n\n')
                     mirc_bot.send_message(first_chat_id, mirc_bot.get_topten(new_film))
+                    mirc_bot.send_message(first_chat_id, 'Scrivi in chat  /film  per avere la lista aggiornata'
+                                                         'oppure  /list  per quella appena ottenuta')
                     new_offset = first_update_id + 1
                 elif first_chat_text == '/lista':
                     if len(new_film) == 0:
                         mirc_bot.send_message(first_chat_id, 'usa almeno una volta il comando /film per avere '
                                                              'la lista aggiornata')
+
                     else:
                         mirc_bot.send_message(first_chat_id, mirc_bot.get_stringed_list(new_film))
+                    new_offset = first_update_id + 1
                 else:
                     mirc_bot.send_message(first_chat_id, 'Scrivi in chat  /film  per avere la lista aggiornata')
                     new_offset = first_update_id + 1
