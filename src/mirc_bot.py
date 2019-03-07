@@ -1,7 +1,47 @@
 # -*- coding: UTF8 -*-
+import os
 import requests
-import configurations as conf
-from mirc_updates import extract_film
+from bs4 import BeautifulSoup
+
+url = "http://spacejam.ovh/New_pwd=fibra.php"  # target URL
+new_film = []  # TOP TEN res
+
+r = requests.get(url)
+
+data = r.text
+
+soup = BeautifulSoup(data, "html.parser")
+
+
+def extract_film(cont: int, row: int, film: list) -> list:
+    if row == 10:  # Base case: I have top ten Bluray 1080p film
+        print("parsing terminated..returning the list ("+str(len(film))+" elements inside)")
+        return film
+    else:
+        for item in soup.find_all("a", class_="titolo ricerca pos" + str(row)):
+            cont = cont + 1
+            if cont == 4:
+                film.append(item.string)
+                extract_film(0, row + 1, film)  # Recursion: reset counter and increase row
+
+
+# dump_list = extract_film(cont=0, row=0)  # Create a dump on new_film list
+# print(new_film)
+
+# Telegram configuration
+#
+
+# Telegram bot API token
+API_TOKEN = "690164647:AAF4Myd4fvTfKydUOPhdCJZjj2CK4UWPpE8"
+
+# Path where wil be stored the configurations
+SCHEDULER_CONFIG_PATH = os.path.dirname(__file__)
+
+# File that holds the log
+LOG_FILENAME = os.path.dirname(__file__) + "/result.log"
+
+# Database file where will be stored all the events
+# SQLITE_DB = os.path.dirname(__file__) + "/result.txt"
 
 
 class BotHandler:
