@@ -34,7 +34,7 @@ def extract_film(cont: int, row: int, film: list) -> list:
 
 
 # Telegram bot API token
-API_TOKEN = "690164647:AAF4Myd4fvTfKydUOPhdCJZjj2CK4UWPpE8"
+API_TOKEN = "token here"
 
 # Path where wil be stored the configurations
 SCHEDULER_CONFIG_PATH = os.path.dirname(__file__)
