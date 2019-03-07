@@ -138,6 +138,8 @@ def main():
                     new_offset = first_update_id + 1
                 # elif first_chat_text == '/lista':
                 #
+                elif first_chat_text == 'sto skopando':
+                    mirc_bot.send_message(first_chat_id, 'https://imgur.com/a/XCkEldw')
                 else:
                     mirc_bot.send_message(first_chat_id, 'Scrivi in chat  /film  per avere la lista aggiornata')
                     new_offset = first_update_id + 1
