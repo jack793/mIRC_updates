@@ -1,1 +1,1 @@
-web: python3 src/mirc_bot.py 0.0.0.0:$PORT
+web: python3 src/mirc_bot.py $PORT
