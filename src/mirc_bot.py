@@ -3,10 +3,12 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-url = "http://spacejam.ovh/New_pwd=fibra.php"  # target URL
-new_film = []  # TOP TEN res
+########################### PARSER CONFIGURATION ########################
 
-r = requests.get(url)
+URL = "http://spacejam.ovh/New_pwd=fibra.php"  # target URL
+NEW_FILM = []  # TOP TEN res
+
+r = requests.get(URL)
 
 data = r.text
 
@@ -25,11 +27,11 @@ def extract_film(cont: int, row: int, film: list) -> list:
                 extract_film(0, row + 1, film)  # Recursion: reset counter and increase row
 
 
-# dump_list = extract_film(cont=0, row=0)  # Create a dump on new_film list
-# print(new_film)
+# dump_list = extract_film(cont=0, row=0)  # Create a dump on NEW_FILM list
+# print(NEW_FILM)
 
-# Telegram configuration
-#
+########################### TELEGRAM CONFIGURATION ########################
+
 
 # Telegram bot API token
 API_TOKEN = "690164647:AAF4Myd4fvTfKydUOPhdCJZjj2CK4UWPpE8"
@@ -44,13 +46,14 @@ LOG_FILENAME = os.path.dirname(__file__) + "/result.log"
 # Database file where will be stored all the events
 # SQLITE_DB = os.path.dirname(__file__) + "/result.txt"
 
+########################### BOT CONFIGURATION ########################
 
 class BotHandler:
     def __init__(self, api_token):
         self.token = api_token
         self.api_url = "https://api.telegram.org/bot{}/".format(api_token)
 
-    # url = "https://api.telegram.org/bot<token>/"
+    # URL = "https://api.telegram.org/bot<token>/"
 
     def get_updates(self, offset=0, timeout=30):
         method = 'getUpdates'
@@ -98,9 +101,12 @@ bot_token = API_TOKEN  # Token of your bot
 mirc_bot = BotHandler(bot_token)  # Your bot's name
 
 
+########################### MAIN ##########################
+
 def main():
     new_offset = 0
     print('Starting mIRC_bot...')
+    print('mIRCbot active')
 
     while True:
         all_updates = mirc_bot.get_updates(new_offset)
@@ -125,19 +131,13 @@ def main():
 
                 if first_chat_text == '/film':
                     mirc_bot.send_message(first_chat_id, 'Ok ' + first_chat_name +
-                                          ' estraggo la TOP TEN aggiornata' + ', attendi qualche secondo...\n\n')
-                    mirc_bot.send_message(first_chat_id, mirc_bot.get_topten(new_film))
+                                          ' estraggo la TOP TEN aggiornata, attendi qualche secondo...\n\n')
+                    mirc_bot.send_message(first_chat_id, mirc_bot.get_topten([]))
                     mirc_bot.send_message(first_chat_id, 'Scrivi in chat  /film  per avere la lista aggiornata'
-                                                         'oppure  /list  per quella appena ottenuta')
+                                                         'oppure  /lista  per quella appena ottenuta')
                     new_offset = first_update_id + 1
-                elif first_chat_text == '/lista':
-                    if len(new_film) == 0:
-                        mirc_bot.send_message(first_chat_id, 'usa almeno una volta il comando /film per avere '
-                                                             'la lista aggiornata')
-
-                    else:
-                        mirc_bot.send_message(first_chat_id, mirc_bot.get_stringed_list(new_film))
-                    new_offset = first_update_id + 1
+                # elif first_chat_text == '/lista':
+                #
                 else:
                     mirc_bot.send_message(first_chat_id, 'Scrivi in chat  /film  per avere la lista aggiornata')
                     new_offset = first_update_id + 1
