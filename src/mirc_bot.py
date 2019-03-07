@@ -15,7 +15,7 @@ soup = BeautifulSoup(data, "html.parser")
 
 def extract_film(cont: int, row: int, film: list) -> list:
     if row == 10:  # Base case: I have top ten Bluray 1080p film
-        print("parsing terminated..returning the list ("+str(len(film))+" elements inside)")
+        print("parsing terminated..returning the list (" + str(len(film)) + " elements inside)")
         return film
     else:
         for item in soup.find_all("a", class_="titolo ricerca pos" + str(row)):
@@ -39,6 +39,7 @@ SCHEDULER_CONFIG_PATH = os.path.dirname(__file__)
 
 # File that holds the log
 LOG_FILENAME = os.path.dirname(__file__) + "/result.log"
+
 
 # Database file where will be stored all the events
 # SQLITE_DB = os.path.dirname(__file__) + "/result.txt"
@@ -75,19 +76,25 @@ class BotHandler:
         return last_update
 
     @staticmethod
+    def get_stringed_list(as_list: list):
+        reversedList = as_list[::-1]  # reverse the list for increase user readability
+        strDump = '\n\n- '.join(reversedList)  # Convert obj list in a string list
+        return '- ' + strDump
+
+    @staticmethod
     def get_topten(film: list) -> str:
         """
         Call the extract_film method from mirc_updates and return the updated top ten list
         :param film: list to be updated
         :return: updated top ten list in string format
         """
-        extract_film(0, 0, film)    # modify 'film: list' parameter passed
-        reversedList = film[::-1]   # reverse the list for increase user readability
-        strDump = '\n\n- '.join(reversedList)   # Convert obj list in a string list
+        extract_film(0, 0, film)  # modify 'film: list' parameter passed
+        reversedList = film[::-1]  # reverse the list for increase user readability
+        strDump = '\n\n- '.join(reversedList)  # Convert obj list in a string list
         return '- ' + strDump
 
 
-bot_token = API_TOKEN # Token of your bot
+bot_token = API_TOKEN  # Token of your bot
 mirc_bot = BotHandler(bot_token)  # Your bot's name
 
 
@@ -119,8 +126,14 @@ def main():
                 if first_chat_text == '/film':
                     mirc_bot.send_message(first_chat_id, 'Ok ' + first_chat_name +
                                           ' estraggo la TOP TEN aggiornata' + ', attendi qualche secondo...\n\n')
-                    mirc_bot.send_message(first_chat_id, mirc_bot.get_topten([]))
+                    mirc_bot.send_message(first_chat_id, mirc_bot.get_topten(new_film))
                     new_offset = first_update_id + 1
+                elif first_chat_text == '/lista':
+                    if len(new_film) == 0:
+                        mirc_bot.send_message(first_chat_id, 'usa almeno una volta il comando /film per avere '
+                                                             'la lista aggiornata')
+                    else:
+                        mirc_bot.send_message(first_chat_id, mirc_bot.get_stringed_list(new_film))
                 else:
                     mirc_bot.send_message(first_chat_id, 'Scrivi in chat  /film  per avere la lista aggiornata')
                     new_offset = first_update_id + 1
