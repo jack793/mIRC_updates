@@ -1,1 +1,1 @@
-worker: python3 src/mirc_bot.py
+worker: python3 src/mirc_bot.py $PORT
