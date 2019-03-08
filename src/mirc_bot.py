@@ -3,25 +3,26 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
+
 ########################### PARSER CONFIGURATION ########################
 
-URL = "http://spacejam.ovh/New_pwd=fibra.php"  # target URL
+# URL = "http://spacejam.ovh/New_pwd=fibra.php"  # target URL
+#
+# r = requests.get(URL)
+# data = r.text
+# soup = BeautifulSoup(data, "html.parser")
 
-r = requests.get(URL)
-data = r.text
-soup = BeautifulSoup(data, "html.parser")
 
-
-def extract_film(cont: int, row: int, film: list) -> list:
-    if row == 10:  # Base case: I have top ten Bluray 1080p film
-        print("parsing terminated..returning the list (" + str(len(film)) + " elements inside)")
-        return film
-    else:
-        for item in soup.find_all("a", class_="titolo ricerca pos" + str(row)):
-            cont = cont + 1
-            if cont == 4:
-                film.append(item.string)
-                extract_film(0, row + 1, film)  # Recursion: reset counter and increase row
+# def extract_film(cont: int, row: int, film: list) -> list:
+#     if row == 10:  # Base case: I have top ten Bluray 1080p film
+#         print("parsing terminated..returning the list (" + str(len(film)) + " elements inside)")
+#         return film
+#     else:
+#         for item in soup.find_all("a", class_="titolo ricerca pos" + str(row)):
+#             cont = cont + 1
+#             if cont == 4:
+#                 film.append(item.string)
+#                 extract_film(0, row + 1, film)  # Recursion: reset counter and increase row
 
 
 ########################### TELEGRAM CONFIGURATION ########################
@@ -43,7 +44,11 @@ LOG_FILENAME = os.path.dirname(__file__) + "/result.log"
 ########################### BOT CONFIGURATION ########################
 
 class BotHandler:
-    def __init__(self, api_token, film_list, dump_list):
+    def __init__(self, url, api_token, film_list, dump_list):
+        self.r = requests.get(url)
+        self.data = self.r.text
+        self.soup = BeautifulSoup(self.data, "html.parser")
+        self.target_url = url
         self.token = api_token
         self.film = film_list
         self.dump = dump_list
@@ -83,24 +88,41 @@ class BotHandler:
             strDump = '\n\n- '.join(reversedList)  # Convert obj list in a string list
             return '- ' + strDump
 
-    def get_topten(self) -> str:
-        """
-        Call the extract_film method from mirc_updates and return the updated top ten list
-        :return: updated top ten list in string format
-        """
-        del self.film[:]  # RESET FILM LIST BEFORE GET NEWER ONE
-        extract_film(0, 0, self.film)  # modify 'film_list' parameter passed
-        self.dump = self.film.copy()
-        reversedList = self.film[::-1]  # reverse the list for increase user readability
-        strDump = '\n\n- '.join(reversedList)  # Convert list to string
-        return '- ' + strDump
+    def get_film(self, row: int, cont: int, film: list) -> str:
+        if row == 10:  # Base case: I have top ten Bluray 1080p film
+            print("parsing terminated..returning the list (" + str(len(film)) + " elements inside)")
+            self.dump = self.film.copy()
+            reversedList = self.film[::-1]  # reverse the list for increase user readability
+            strDump = '\n\n- '.join(reversedList)  # Convert list to string
+            return '- ' + strDump
+        else:
+            for item in self.soup.find_all("a", class_="titolo ricerca pos" + str(row)):
+                cont = cont + 1
+                if cont == 4:
+                    film.append(item.string)
+                    mirc_bot.get_film(0, row + 1, film)  # Recursion: reset counter and increase row
+
+    # def get_topten(self) -> str:
+    #     """
+    #     Call the extract_film method from mirc_updates and return the updated top ten list
+    #     :return: updated top ten list in string format
+    #     """
+    #     del self.film[:]  # RESET FILM LIST BEFORE GET NEWER ONE
+    #     extract_film(0, 0, self.film)  # modify 'film_list' parameter passed
+    #     self.dump = self.film.copy()
+    #     reversedList = self.film[::-1]  # reverse the list for increase user readability
+    #     strDump = '\n\n- '.join(reversedList)  # Convert list to string
+    #     return '- ' + strDump
+
+
+URL = "http://spacejam.ovh/New_pwd=fibra.php"  # target URL
 
 
 FILM_LIST = []
 DUMP_LIST = []
 bot_token = API_TOKEN  # Token of your bot
 
-mirc_bot = BotHandler(bot_token, FILM_LIST, DUMP_LIST)  # Your bot's name
+mirc_bot = BotHandler(bot_token, URL, FILM_LIST, DUMP_LIST)  # Your bot's name
 
 
 ########################### MAIN ##########################
@@ -138,7 +160,14 @@ def main():
                 if first_chat_text == '/film':
                     mirc_bot.send_message(first_chat_id, 'Ok ' + first_chat_name +
                                           ' estraggo la TOP TEN aggiornata, attendi qualche secondo...\n\n')
-                    mirc_bot.send_message(first_chat_id, mirc_bot.get_topten())
+
+                    mirc_bot.r = requests.get(mirc_bot.target_url)
+                    mirc_bot.data = mirc_bot.r.text
+                    mirc_bot.soup = BeautifulSoup(mirc_bot.data, "html.parser")
+                    del mirc_bot.film[:]  # RESET FILM LIST BEFORE GET NEWER ONE
+
+                    mirc_bot.send_message(first_chat_id, mirc_bot.
+                                          get_film(0, 0, mirc_bot.film))
                     mirc_bot.send_message(first_chat_id, 'Ecco la TOP TEN aggiornata! \n - /lista: Rivedi l\' ultima '
                                                          'lista ottenuta;\n - /film: Aggiorna nuovamente la TOP TEN!')
                     new_offset = first_update_id + 1
