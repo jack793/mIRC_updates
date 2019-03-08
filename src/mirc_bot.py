@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 ########################### PARSER CONFIGURATION ########################
 
 URL = "http://spacejam.ovh/New_pwd=fibra.php"  # target URL
+DUMP_LIST = []  #
 
 r = requests.get(URL)
 data = r.text
@@ -21,6 +22,7 @@ def extract_film(cont: int, row: int, film: list) -> list:
             cont = cont + 1
             if cont == 4:
                 film.append(item.string)
+                DUMP_LIST.append(item.string)
                 extract_film(0, row + 1, film)  # Recursion: reset counter and increase row
 
 
@@ -85,15 +87,15 @@ class BotHandler:
             return '- ' + strDump
 
     @staticmethod
-    def get_topten(new_film_alias: list) -> str:
+    def get_topten(film_list: list) -> str:
         """
         Call the extract_film method from mirc_updates and return the updated top ten list
-        :param new_film_alias: list to be updated (is a 4 value alias of NEW_FILM list)
+        :param film_list: list to be updated (is a 4 value alias of NEW_FILM list)
         :return: updated top ten list in string format
         """
-        extract_film(0, 0, new_film_alias)  # modify 'NEW_FILM: list' parameter passed
-        reversedList = new_film_alias[::-1]  # reverse the list for increase user readability
-        strDump = '\n\n- '.join(reversedList)  # Convert obj list in a string list
+        extract_film(0, 0, film_list)  # modify 'film_list' parameter passed
+        reversedList = film_list[::-1]  # reverse the list for increase user readability
+        strDump = '\n\n- '.join(reversedList)  # Convert list to string
         return '- ' + strDump
 
 
@@ -105,13 +107,11 @@ mirc_bot = BotHandler(bot_token)  # Your bot's name
 
 def main():
     new_offset = 0
-    DUMP_LIST = []
     print('Starting mIRC_bot...')
     print('mIRCbot active')
 
     while True:
         all_updates = mirc_bot.get_updates(new_offset)
-
         if len(all_updates) > 0:
             for current_update in all_updates:
                 print(current_update)
@@ -139,19 +139,19 @@ def main():
                     mirc_bot.send_message(first_chat_id, 'Ok ' + first_chat_name +
                                           ' estraggo la TOP TEN aggiornata, attendi qualche secondo...\n\n')
                     # RESET LIST BEFORE GET NEWER ONE (in get_topten call we pass an empty [] list)
-                    NEW_FILM = mirc_bot.get_topten([])
-                    DUMP_LIST = NEW_FILM
-                    mirc_bot.send_message(first_chat_id, NEW_FILM)
+                    mirc_bot.send_message(first_chat_id, mirc_bot.get_topten([]))
                     mirc_bot.send_message(first_chat_id, 'Ecco la TOP TEN aggiornata! \n - /lista: Rivedi l\' ultima '
                                                          'lista ottenuta;\n - /film: Aggiorna nuovamente la TOP TEN!')
                     new_offset = first_update_id + 1
                 elif first_chat_text == '/lista':
                     if len(DUMP_LIST) == 0:
+                        # mirc_bot.send_message(first_chat_id, 'Al momento questa funz è disabilitata finchè il mio '
+                        #                                      'stupido programmatore non capisce come risolverlo')
                         mirc_bot.send_message(first_chat_id, first_chat_name + ' devi eseguire almeno una volta il '
                                                                                'comando  /film  per avere la lista '
                                                                                'aggiornata, prova subito')
                     else:
-                        mirc_bot.send_message(first_chat_id, DUMP_LIST)
+                        mirc_bot.send_message(first_chat_id, mirc_bot.get_stringed_list(DUMP_LIST))
                         mirc_bot.send_message(first_chat_id, 'Ecco la lista degli ultimi film! \n'
                                                              '- Aggiornala con /film\n'
                                                              '- /lista se invece vuoi vederla ancora')
