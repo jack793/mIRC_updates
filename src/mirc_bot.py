@@ -153,7 +153,7 @@ def main():
                     else:
                         mirc_bot.send_message(first_chat_id, DUMP_LIST)
                         mirc_bot.send_message(first_chat_id, 'Ecco la lista dei film che avevi. \n'
-                                                             'Aggiornala nuovamente con /film\n'
+                                                             'Aggiornala con /film\n'
                                                              '/lista se invece vuoi vederla ancora')
                     new_offset = first_update_id + 1
                 elif first_chat_text == '/info':
