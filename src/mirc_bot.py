@@ -6,12 +6,9 @@ from bs4 import BeautifulSoup
 ########################### PARSER CONFIGURATION ########################
 
 URL = "http://spacejam.ovh/New_pwd=fibra.php"  # target URL
-# NEW_FILM = []  # TOP TEN res
 
 r = requests.get(URL)
-
 data = r.text
-
 soup = BeautifulSoup(data, "html.parser")
 
 
@@ -34,7 +31,7 @@ def extract_film(cont: int, row: int, film: list) -> list:
 
 
 # Telegram bot API token
-API_TOKEN = "TOKEN HERE"
+API_TOKEN = "690164647:AAF4Myd4fvTfKydUOPhdCJZjj2CK4UWPpE8"
 
 # Path where wil be stored the configurations
 SCHEDULER_CONFIG_PATH = os.path.dirname(__file__)
@@ -145,20 +142,42 @@ def main():
                     NEW_FILM = mirc_bot.get_topten([])
                     DUMP_LIST = NEW_FILM
                     mirc_bot.send_message(first_chat_id, NEW_FILM)
-                    mirc_bot.send_message(first_chat_id, 'Scrivi in chat  /film  per avere la lista aggiornata'
-                                                         ' oppure  /lista  per quella appena ottenuta')
+                    mirc_bot.send_message(first_chat_id, 'Ecco la TOP TEN aggiornata! \n - /lista: Rivedi l\' ultima '
+                                                         'lista ottenuta;\n - /film: Aggiorna nuovamente la TOP TEN!')
                     new_offset = first_update_id + 1
                 elif first_chat_text == '/lista':
                     if len(DUMP_LIST) == 0:
                         mirc_bot.send_message(first_chat_id, first_chat_name + ' devi eseguire almeno una volta il '
                                                                                'comando  /film  per avere la lista '
-                                                                               'aggiornata')
+                                                                               'aggiornata, prova subito')
                     else:
                         mirc_bot.send_message(first_chat_id, DUMP_LIST)
+                        mirc_bot.send_message(first_chat_id, first_chat_name + ' ecco la lista dei film che avevi. \n'
+                                                                               'Per aggiornarla nuovamente'
+                                                                               'usa /film \nUsa '
+                                                                               '/info se invece vuoi di nuovo vedere '
+                                                                               'questa lista')
+                    new_offset = first_update_id + 1
+                elif first_chat_text == '/info':
+                    mirc_bot.send_message(first_chat_id, 'Ciao ' + first_chat_name + ' sono mIRCbot, un piccolo bot '
+                                                         'per scovare la lista dei titoli '
+                                                         'più belli del momento in ottima '
+                                                         'qualità, provenienti da un '
+                                                         'canale (segretissimo) della  '
+                                                         'buia rete IRC! ')
+                    mirc_bot.send_message(first_chat_id, 'Provami subito, in questa '
+                                                         'versione (v0.2) i miei comandi '
+                                                         'sono:\n - /film: Ottieni la TOP '
+                                                         'TEN attuale;\n - /lista: Rivedi '
+                                                         'l\' ultima lista ottenuta ('
+                                                         'esegui almeno una volta l\' '
+                                                         'aggiornamento)')
                     new_offset = first_update_id + 1
                 else:
-                    mirc_bot.send_message(first_chat_id, 'Scrivi in chat  /film  per avere la lista aggiornata'
-                                                         ' oppure  /lista  per l\' ultima ottenuta')
+                    mirc_bot.send_message(first_chat_id, 'Benvenuto ' + first_chat_name + ' sono mIRCbot (v0.2).\nUsa '
+                                                                                          'il comando /info per '
+                                                                                          'sapere tutto su di me ('
+                                                                                          'v0.2)')
                     new_offset = first_update_id + 1
 
 
