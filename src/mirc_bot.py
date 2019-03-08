@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 ########################### PARSER CONFIGURATION ########################
 
 URL = "http://spacejam.ovh/New_pwd=fibra.php"  # target URL
-NEW_FILM = []  # TOP TEN res
+# NEW_FILM = []  # TOP TEN res
 
 r = requests.get(URL)
 
@@ -34,7 +34,7 @@ def extract_film(cont: int, row: int, film: list) -> list:
 
 
 # Telegram bot API token
-API_TOKEN = "690164647:AAF4Myd4fvTfKydUOPhdCJZjj2CK4UWPpE8"
+API_TOKEN = "TOKEN HERE"
 
 # Path where wil be stored the configurations
 SCHEDULER_CONFIG_PATH = os.path.dirname(__file__)
@@ -80,19 +80,22 @@ class BotHandler:
 
     @staticmethod
     def get_stringed_list(as_list: list):
-        reversedList = as_list[::-1]  # reverse the list for increase user readability
-        strDump = '\n\n- '.join(reversedList)  # Convert obj list in a string list
-        return '- ' + strDump
+        if len(as_list) == 0:
+            return 'Ahia ahia la lista è vuota, c\'è qualcosa che non va'
+        else:
+            reversedList = as_list[::-1]  # reverse the list for increase user readability
+            strDump = '\n\n- '.join(reversedList)  # Convert obj list in a string list
+            return '- ' + strDump
 
     @staticmethod
-    def get_topten(film: list) -> str:
+    def get_topten(new_film_alias: list) -> str:
         """
         Call the extract_film method from mirc_updates and return the updated top ten list
-        :param film: list to be updated
+        :param new_film_alias: list to be updated (is a 4 value alias of NEW_FILM list)
         :return: updated top ten list in string format
         """
-        extract_film(0, 0, film)  # modify 'film: list' parameter passed
-        reversedList = film[::-1]  # reverse the list for increase user readability
+        extract_film(0, 0, new_film_alias)  # modify 'NEW_FILM: list' parameter passed
+        reversedList = new_film_alias[::-1]  # reverse the list for increase user readability
         strDump = '\n\n- '.join(reversedList)  # Convert obj list in a string list
         return '- ' + strDump
 
@@ -105,6 +108,7 @@ mirc_bot = BotHandler(bot_token)  # Your bot's name
 
 def main():
     new_offset = 0
+    DUMP_LIST = []
     print('Starting mIRC_bot...')
     print('mIRCbot active')
 
@@ -115,6 +119,9 @@ def main():
             for current_update in all_updates:
                 print(current_update)
                 first_update_id = current_update['update_id']
+
+                #######  CHECK USER INFO #######
+
                 if 'text' not in current_update['message']:
                     first_chat_text = 'New member'
                 else:
@@ -129,20 +136,29 @@ def main():
                 else:
                     first_chat_name = "unknown"
 
+                #######  CHECK USER COMMANDS  #######
+
                 if first_chat_text == '/film':
                     mirc_bot.send_message(first_chat_id, 'Ok ' + first_chat_name +
                                           ' estraggo la TOP TEN aggiornata, attendi qualche secondo...\n\n')
-                    mirc_bot.send_message(first_chat_id, mirc_bot.get_topten([]))
+                    # RESET LIST BEFORE GET NEWER ONE (in get_topten call we pass an empty [] list)
+                    NEW_FILM = mirc_bot.get_topten([])
+                    DUMP_LIST = NEW_FILM
+                    mirc_bot.send_message(first_chat_id, NEW_FILM)
                     mirc_bot.send_message(first_chat_id, 'Scrivi in chat  /film  per avere la lista aggiornata'
-                                                         'oppure  /lista  per quella appena ottenuta')
+                                                         ' oppure  /lista  per quella appena ottenuta')
                     new_offset = first_update_id + 1
-                # elif first_chat_text == '/lista':
-                #
-                elif first_chat_text == 'sto skopando':
-                    mirc_bot.send_message(first_chat_id, 'https://imgur.com/a/XCkEldw')
+                elif first_chat_text == '/lista':
+                    if len(DUMP_LIST) == 0:
+                        mirc_bot.send_message(first_chat_id, first_chat_name + ' devi eseguire almeno una volta il '
+                                                                               'comando  /film  per avere la lista '
+                                                                               'aggiornata')
+                    else:
+                        mirc_bot.send_message(first_chat_id, DUMP_LIST)
                     new_offset = first_update_id + 1
                 else:
-                    mirc_bot.send_message(first_chat_id, 'Scrivi in chat  /film  per avere la lista aggiornata')
+                    mirc_bot.send_message(first_chat_id, 'Scrivi in chat  /film  per avere la lista aggiornata'
+                                                         ' oppure  /lista  per l\' ultima ottenuta')
                     new_offset = first_update_id + 1
 
 
