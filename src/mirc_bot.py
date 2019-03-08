@@ -152,9 +152,9 @@ def main():
                                                                                'aggiornata, prova subito')
                     else:
                         mirc_bot.send_message(first_chat_id, DUMP_LIST)
-                        mirc_bot.send_message(first_chat_id, 'Ecco la lista dei film che avevi. \n'
-                                                             'Aggiornala con /film\n'
-                                                             '/lista se invece vuoi vederla ancora')
+                        mirc_bot.send_message(first_chat_id, 'Ecco la lista degli ultimi film! \n'
+                                                             '- Aggiornala con /film\n'
+                                                             '- /lista se invece vuoi vederla ancora')
                     new_offset = first_update_id + 1
                 elif first_chat_text == '/info':
                     mirc_bot.send_message(first_chat_id, 'Ciao ' + first_chat_name + ' sono mIRCbot, un piccolo bot '
@@ -174,8 +174,7 @@ def main():
                 else:
                     mirc_bot.send_message(first_chat_id, 'Benvenuto ' + first_chat_name + ' sono mIRCbot (v0.2).\nUsa '
                                                                                           'il comando /info per '
-                                                                                          'sapere tutto su di me ('
-                                                                                          'v0.2)')
+                                                                                          'sapere tutto su di me')
                     new_offset = first_update_id + 1
 
 
