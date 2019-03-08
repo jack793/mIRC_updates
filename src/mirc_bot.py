@@ -152,19 +152,17 @@ def main():
                                                                                'aggiornata, prova subito')
                     else:
                         mirc_bot.send_message(first_chat_id, DUMP_LIST)
-                        mirc_bot.send_message(first_chat_id, first_chat_name + ' ecco la lista dei film che avevi. \n'
-                                                                               'Per aggiornarla nuovamente'
-                                                                               'usa /film \nUsa '
-                                                                               '/info se invece vuoi di nuovo vedere '
-                                                                               'questa lista')
+                        mirc_bot.send_message(first_chat_id, 'Ecco la lista dei film che avevi. \n'
+                                                             'Aggiornala nuovamente con /film\n'
+                                                             '/lista se invece vuoi vederla ancora')
                     new_offset = first_update_id + 1
                 elif first_chat_text == '/info':
                     mirc_bot.send_message(first_chat_id, 'Ciao ' + first_chat_name + ' sono mIRCbot, un piccolo bot '
-                                                         'per scovare la lista dei titoli '
-                                                         'più belli del momento in ottima '
-                                                         'qualità, provenienti da un '
-                                                         'canale (segretissimo) della  '
-                                                         'buia rete IRC! ')
+                                                                                     'per scovare la lista dei titoli '
+                                                                                     'più belli del momento in ottima '
+                                                                                     'qualità, provenienti da un '
+                                                                                     'canale (segretissimo) della  '
+                                                                                     'buia rete IRC! ')
                     mirc_bot.send_message(first_chat_id, 'Provami subito, in questa '
                                                          'versione (v0.2) i miei comandi '
                                                          'sono:\n - /film: Ottieni la TOP '
