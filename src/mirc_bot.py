@@ -44,7 +44,7 @@ LOG_FILENAME = os.path.dirname(__file__) + "/result.log"
 ########################### BOT CONFIGURATION ########################
 
 class BotHandler:
-    def __init__(self, url, api_token, film_list, dump_list):
+    def __init__(self, api_token, url, film_list, dump_list):
         self.r = requests.get(url)
         self.data = self.r.text
         self.soup = BeautifulSoup(self.data, "html.parser")
@@ -116,8 +116,6 @@ class BotHandler:
 
 
 URL = "http://spacejam.ovh/New_pwd=fibra.php"  # target URL
-
-
 FILM_LIST = []
 DUMP_LIST = []
 bot_token = API_TOKEN  # Token of your bot
