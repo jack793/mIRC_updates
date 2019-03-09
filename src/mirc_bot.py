@@ -29,7 +29,7 @@ from bs4 import BeautifulSoup
 
 
 # Telegram bot API token
-API_TOKEN = "690164647:AAF4Myd4fvTfKydUOPhdCJZjj2CK4UWPpE8"
+API_TOKEN = "TOKEN HERE"
 
 # Path where wil be stored the configurations
 SCHEDULER_CONFIG_PATH = os.path.dirname(__file__)
@@ -44,14 +44,11 @@ LOG_FILENAME = os.path.dirname(__file__) + "/result.log"
 ########################### BOT CONFIGURATION ########################
 
 class BotHandler:
-    def __init__(self, api_token, url, film_list, dump_list):
-        self.r = requests.get(url)
-        self.data = self.r.text
-        self.soup = BeautifulSoup(self.data, "html.parser")
-        self.target_url = url
+    def __init__(self, api_token):
+        self.soup = BeautifulSoup
+        self.dump = []
+        self.film = []
         self.token = api_token
-        self.film = film_list
-        self.dump = dump_list
         self.api_url = "https://api.telegram.org/bot{}/".format(api_token)
 
     # URL = "https://api.telegram.org/bot<token>/"
@@ -80,7 +77,7 @@ class BotHandler:
         return last_update
 
     @staticmethod
-    def get_stringed_list(as_list: list):
+    def printable(as_list: list):
         if len(as_list) == 0:
             return 'Ahia ahia la lista è vuota, c\'è qualcosa che non va'
         else:
@@ -88,19 +85,26 @@ class BotHandler:
             strDump = '\n\n- '.join(reversedList)  # Convert obj list in a string list
             return '- ' + strDump
 
-    def get_film(self, row: int, cont: int, film: list) -> str:
+    def get_film(self, row: int, cont: int):
+        if len(self.film) == 0:
+            r = requests.get(URL)   # UPDATE request data
+            data = r.text
+            print(' --> request to url target done')
+            self.soup = BeautifulSoup(data, "html.parser")
+            print(' --> mirc_bot.soup filled')
         if row == 10:  # Base case: I have top ten Bluray 1080p film
-            print("parsing terminated..returning the list (" + str(len(film)) + " elements inside)")
-            self.dump = self.film.copy()
-            reversedList = self.film[::-1]  # reverse the list for increase user readability
-            strDump = '\n\n- '.join(reversedList)  # Convert list to string
-            return '- ' + strDump
-        else:
-            for item in self.soup.find_all("a", class_="titolo ricerca pos" + str(row)):
-                cont = cont + 1
-                if cont == 4:
-                    film.append(item.string)
-                    mirc_bot.get_film(0, row + 1, film)  # Recursion: reset counter and increase row
+            print("parsing terminated..returning the list (" + str(len(self.film)) + " elements inside)")
+            self.dump = self.film.copy()    # Crate a dump for /lista bot command
+            # reversedList = self.film[::-1]  # reverse the list for increase user readability
+            # strDump = '\n\n- '.join(reversedList)  # Convert list to string
+            # return '- ' + strDump
+            print(self.film)
+            return 0
+        for item in self.soup.find_all("a", class_="titolo ricerca pos" + str(row)):
+            cont = cont + 1
+            if cont == 4:
+                self.film.append(item.string)
+                self.get_film(row + 1, 0)  # Recursion: reset counter and increase row
 
     # def get_topten(self) -> str:
     #     """
@@ -120,7 +124,7 @@ FILM_LIST = []
 DUMP_LIST = []
 bot_token = API_TOKEN  # Token of your bot
 
-mirc_bot = BotHandler(bot_token, URL, FILM_LIST, DUMP_LIST)  # Your bot's name
+mirc_bot = BotHandler(bot_token)  # Your bot's name
 
 
 ########################### MAIN ##########################
@@ -155,30 +159,26 @@ def main():
 
                 #######  CHECK USER COMMANDS  #######
 
-                if first_chat_text == '/film':
+                if first_chat_text == '/BLURAY':
                     mirc_bot.send_message(first_chat_id, 'Ok ' + first_chat_name +
                                           ' estraggo la TOP TEN aggiornata, attendi qualche secondo...\n\n')
 
-                    mirc_bot.r = requests.get(mirc_bot.target_url)
-                    mirc_bot.data = mirc_bot.r.text
-                    mirc_bot.soup = BeautifulSoup(mirc_bot.data, "html.parser")
                     del mirc_bot.film[:]  # RESET FILM LIST BEFORE GET NEWER ONE
-
-                    mirc_bot.send_message(first_chat_id, mirc_bot.
-                                          get_film(0, 0, mirc_bot.film))
-                    mirc_bot.send_message(first_chat_id, 'Ecco la TOP TEN aggiornata! \n - /lista: Rivedi l\' ultima '
-                                                         'lista ottenuta;\n - /film: Aggiorna nuovamente la TOP TEN!')
+                    mirc_bot.get_film(0, 0)
+                    mirc_bot.send_message(first_chat_id, mirc_bot.printable(mirc_bot.film))
+                    mirc_bot.send_message(first_chat_id, 'Ecco la TOP TEN aggiornata! \n - /LISTA: Rivedi l\' ultima '
+                                                         'lista ottenuta;\n - /BLURAY: Aggiorna nuovamente la TOP TEN!')
                     new_offset = first_update_id + 1
-                elif first_chat_text == '/lista':
+                elif first_chat_text == '/LISTA':
                     if len(mirc_bot.dump) == 0:
                         mirc_bot.send_message(first_chat_id, first_chat_name + ' devi eseguire almeno una volta il '
-                                                                               'comando  /film  per avere la lista '
+                                                                               'comando  /BLURAY  per avere la lista '
                                                                                'aggiornata, prova subito')
                     else:
-                        mirc_bot.send_message(first_chat_id, mirc_bot.get_stringed_list(mirc_bot.dump))
+                        mirc_bot.send_message(first_chat_id, mirc_bot.printable(mirc_bot.dump))
                         mirc_bot.send_message(first_chat_id, 'Ecco la lista degli ultimi film! \n'
-                                                             '- Aggiornala con /film\n'
-                                                             '- /lista se invece vuoi vederla ancora')
+                                                             '- Aggiornala con /BLURAY\n'
+                                                             '- /LISTA se invece vuoi vederla ancora')
                     new_offset = first_update_id + 1
                 elif first_chat_text == '/info':
                     mirc_bot.send_message(first_chat_id, 'Ciao ' + first_chat_name + ' sono mIRCbot, un piccolo bot '
@@ -188,15 +188,15 @@ def main():
                                                                                      'canale (segretissimo) della  '
                                                                                      'buia rete IRC! ')
                     mirc_bot.send_message(first_chat_id, 'Provami subito, in questa '
-                                                         'versione (v0.2) i miei comandi '
-                                                         'sono:\n - /film: Ottieni la TOP '
-                                                         'TEN attuale;\n - /lista: Rivedi '
+                                                         'versione (v0.3) i miei comandi '
+                                                         'sono:\n - /BLURAY: Ottieni la TOP '
+                                                         'TEN attuale;\n - /LISTA: Rivedi '
                                                          'l\' ultima lista ottenuta ('
                                                          'esegui almeno una volta l\' '
                                                          'aggiornamento)')
                     new_offset = first_update_id + 1
                 else:
-                    mirc_bot.send_message(first_chat_id, 'Benvenuto ' + first_chat_name + ' sono mIRCbot (v0.2).\nUsa '
+                    mirc_bot.send_message(first_chat_id, 'Benvenuto ' + first_chat_name + ' sono mIRCbot (v0.3).\nUsa '
                                                                                           'il comando /info per '
                                                                                           'sapere tutto su di me')
                     new_offset = first_update_id + 1
